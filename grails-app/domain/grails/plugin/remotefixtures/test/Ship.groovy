@@ -10,7 +10,7 @@ class Ship {
 	}
 	
 	String toString() {
-		"Ship $id: $name ($captain.name)"
+		"$name ($captain.name)"
 	}
 	
 }

@@ -10,7 +10,7 @@ class Pirate {
 	}
 	
 	String toString() {
-		"Pirate $id: $name (\"$nickname\")"
+		"$name (\"$nickname\")"
 	}
 	
 }
