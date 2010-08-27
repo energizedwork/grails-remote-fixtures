@@ -11,6 +11,12 @@ class FixtureController {
 	def fixtureLoader
 	def grailsApplication
 	def transactionManager
+
+	def beforeInterceptor = {
+		if (!grailsApplication.config.fixtures.enabled) {
+			response.sendError SC_FORBIDDEN
+		}
+	}
 	
 	def load = {
 		try {

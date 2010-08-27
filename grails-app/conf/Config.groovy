@@ -1,5 +1,14 @@
 // configuration for plugin testing - will not be included in the plugin zip
 
+environments {
+	development {
+		fixtures.enabled = true
+	}
+	test {
+		fixtures.enabled = true
+	}
+}
+
 grails.app.context = "/"
 
 grails.mime.file.extensions = true // enables the parsing of file extensions from URLs into the request format
