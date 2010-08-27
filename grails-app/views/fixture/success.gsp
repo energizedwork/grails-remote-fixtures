@@ -11,7 +11,18 @@
 				<dl>
 					<g:each var="bean" in="${fixture}">
 						<dt>${bean.key} (${bean.value.getClass().simpleName})</dt>
-						<dd>${bean.value}</dd>
+						<dd>
+							<summary>${bean.value}</summary>
+							<detail>
+								<ul>
+									<li>id = ${bean.value.id}</li>
+									<g:set var="domainClass" value="${grailsApplication.getDomainClass(bean.value.getClass().name)}"/>
+									<g:each var="p" in="${domainClass.persistentProperties*.name}">
+										<li>${p} = ${bean.value[p]}</li>
+									</g:each>
+								</ul>
+							</detail>
+						</dd>
 					</g:each>
 				</dl>
 			</section>
