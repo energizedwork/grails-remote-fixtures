@@ -5,8 +5,8 @@ class RemoteFixturesGrailsPlugin {
     def dependsOn = [fixtures: "1.0.1 > *"]
     def pluginExcludes = [
             "grails-app/views/error.gsp",
-            "grails-app/i18n",
-			"grails-app/domain",
+            "grails-app/i18n/*",
+			"grails-app/domain/**/*",
 			"fixtures"
     ]
 
