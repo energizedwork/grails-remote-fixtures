@@ -1,13 +1,13 @@
 class RemoteFixturesUrlMappings {
 	static mappings = {
-		"/fixture/script" {
+		"/fixture/load" {
 			controller = "fixture"
-			action = "script"
+			action = "load"
 		}
 
 		"/fixture/$fixture" {
 			controller = "fixture"
-			action = "load"
+			action = "loadNamed"
 		}
 	}
 }

@@ -1,6 +1,6 @@
 import groovyx.net.http.HTTPBuilder
 import spock.lang.Specification
-import static groovyx.net.http.ContentType.*
+import static groovyx.net.http.ContentType.HTML
 
 class FixtureSpec extends Specification {
 
@@ -17,15 +17,13 @@ class FixtureSpec extends Specification {
 		when:
 		def http = new HTTPBuilder("http://localhost:8080")
 		def body = [fixture: '''
-import grails.plugin.remotefixtures.test.*
-
 fixture {
 blackbeard(Pirate, name: "Edward Teach", nickname: "Blackbeard")
 calicoJack(Pirate, name: "Jack Rackham", nickname: "Calico Jack")
 blackBart(Pirate, name: "Bartholomew Roberts", nickname: "Black Bart")
 }
 ''']
-		def response = http.post(path: "/fixture/script", body: body, requestContentType: URLENC, contentType: HTML)
+		def response = http.post(path: "/fixture/load", body: body, contentType: HTML)
 
 		then:
 		response.BODY.@class == "success"
