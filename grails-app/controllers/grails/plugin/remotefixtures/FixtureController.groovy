@@ -1,9 +1,6 @@
 package grails.plugin.remotefixtures
 
-import grails.plugin.fixtures.builder.FixtureBuilder
 import grails.plugin.fixtures.exception.UnknownFixtureException
-import grails.plugin.fixtures.files.FixtureFileLoader
-import grails.plugin.fixtures.files.shell.FixtureBuildingShell
 import org.springframework.beans.factory.BeanCreationException
 import grails.converters.*
 import grails.plugin.fixtures.*
@@ -106,12 +103,11 @@ class FixtureController {
 
 	private GroovyShell createFixtureEvaluator() {
 		def fixture = fixtureLoader.createFixture()
-		def fileLoader = new FixtureFileLoader(fixture, [], new FixtureBuilder(fixture))
-//		def classloader = Thread.currentThread().contextClassLoader
-//		def binding = new Binding()
-//		binding.fixture = fixture.&load
-//		binding.build = fixture.&build
-		def shell = new FixtureBuildingShell(fileLoader)
+		def classloader = Thread.currentThread().contextClassLoader
+		def binding = new Binding()
+		binding.fixture = fixture.&load
+		binding.build = fixture.&build
+		def shell = new GroovyShell(classloader, binding)
 		return shell
 	}
 
