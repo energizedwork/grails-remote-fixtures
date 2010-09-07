@@ -1,13 +1,15 @@
 package grails.plugin.remotefixtures
 
-import grails.plugin.fixtures.FixtureLoader
+import grails.plugin.fixtures.builder.FixtureBuilder
 import grails.plugin.fixtures.exception.UnknownFixtureException
-import org.codehaus.groovy.grails.web.servlet.GrailsApplicationAttributes
+import grails.plugin.fixtures.files.FixtureFileLoader
+import grails.plugin.fixtures.files.shell.FixtureBuildingShell
 import org.springframework.beans.factory.BeanCreationException
 import grails.converters.*
+import grails.plugin.fixtures.*
 import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN
+import static org.codehaus.groovy.grails.web.servlet.GrailsApplicationAttributes.CONTENT_FORMAT
 import org.springframework.transaction.support.*
-import static org.codehaus.groovy.grails.web.servlet.GrailsApplicationAttributes.*
 
 class FixtureController {
 
@@ -62,12 +64,7 @@ class FixtureController {
 			log.info "loading fixture $name..."
 			fixture = fixtureLoader.load(name)
 		} as TransactionCallback)
-		def names = fixture.applicationContext.beanDefinitionNames - ["fixtureBeanPostProcessor", "autoAutoWirer"]
-		def fixtureData = [:]
-		names.each {
-			fixtureData[it] = fixture.applicationContext[it]
-		}
-		return fixtureData
+		return getFixtureData(fixture)
 	}
 
 	private Map loadFixtureScript(String script) {
@@ -79,12 +76,22 @@ class FixtureController {
 			log.info "loading fixture from script..."
 			fixture = shell.evaluate(script)
 		} as TransactionCallback)
-		def names = fixture.applicationContext.beanDefinitionNames - ["fixtureBeanPostProcessor", "autoAutoWirer"]
+		return getFixtureData(fixture)
+	}
+
+	private Map<String, Object> getFixtureData(Fixture fixture) {
 		def fixtureData = [:]
-		names.each {
-			fixtureData[it] = fixture.applicationContext[it]
+		if (log.isDebugEnabled()) {
+			log.debug "fixture loaded: $fixture"
+			log.debug "beans: ${fixture?.applicationContext?.beanDefinitionNames}"
+			log.debug "inners: $fixture.inners"
 		}
-		return fixtureData
+		fixture?.applicationContext?.beanDefinitionNames?.each {
+			if (!(it in ["fixtureBeanPostProcessor", "autoAutoWirer"])) {
+				fixtureData[it] = fixture.applicationContext[it]
+			}
+		}
+		fixtureData
 	}
 
 	private String addImportsToScript(String script) {
@@ -99,11 +106,12 @@ class FixtureController {
 
 	private GroovyShell createFixtureEvaluator() {
 		def fixture = fixtureLoader.createFixture()
-		def classloader = Thread.currentThread().contextClassLoader
-		def binding = new Binding()
-		binding.fixture = fixture.&load
-		binding.build = fixture.&build
-		def shell = new GroovyShell(classloader, binding)
+		def fileLoader = new FixtureFileLoader(fixture, [], new FixtureBuilder(fixture))
+//		def classloader = Thread.currentThread().contextClassLoader
+//		def binding = new Binding()
+//		binding.fixture = fixture.&load
+//		binding.build = fixture.&build
+		def shell = new FixtureBuildingShell(fileLoader)
 		return shell
 	}
 

@@ -3,3 +3,5 @@ target
 *.zip
 *.xml
 out
+*.sha1
+*.iml
