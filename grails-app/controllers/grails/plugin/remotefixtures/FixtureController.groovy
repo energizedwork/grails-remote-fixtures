@@ -7,6 +7,7 @@ import grails.plugin.fixtures.*
 import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN
 import static org.codehaus.groovy.grails.web.servlet.GrailsApplicationAttributes.CONTENT_FORMAT
 import org.springframework.transaction.support.*
+import org.springframework.context.ApplicationContext
 
 class FixtureController {
 
@@ -53,6 +54,39 @@ class FixtureController {
 			log.error "could not load fixture script, caught: $e"
 			render view: "error", model: [exception: e.cause]
 		}
+	}
+
+	def executeWithBeans = {
+		try {
+			def fixtureData = loadScriptWithBeans(params.fixture, params.beans)
+			withFormat {
+				html { render view: "success-beans", model: [results: fixtureData]}
+				json { render fixtureData as JSON }
+				xml { render fixtureData as XML }
+			}
+		} catch (BeanCreationException e) {
+			log.error "could not load fixture script, caught: $e"
+			render view: "error", model: [exception: e.cause]
+		}
+	}
+
+	def loadScriptWithBeans(String script, beans) {
+		if(beans instanceof String) {
+			beans = [beans]
+		}
+		log.info "beans: $beans, script: $script"
+		def classloader = Thread.currentThread().contextClassLoader
+		def binding = new Binding()
+		def applicationContext = grailsApplication.mainContext
+		beans.each { beanName ->
+			binding[beanName] = applicationContext.getBean(beanName)
+		}
+		def shell = new GroovyShell(classloader, binding)
+		def result = shell.evaluate(script)
+		if(!(result instanceof Map)) {
+			result = [result: result]
+		}
+		result
 	}
 
 	private Map loadNamedFixture(String name) {
