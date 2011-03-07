@@ -8,6 +8,7 @@ import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN
 import static org.codehaus.groovy.grails.web.servlet.GrailsApplicationAttributes.CONTENT_FORMAT
 import org.springframework.transaction.support.*
 import org.springframework.context.ApplicationContext
+import grails.plugin.fixtures.files.FixtureFilePatternResolver
 
 class FixtureController {
 
@@ -56,9 +57,15 @@ class FixtureController {
 		}
 	}
 
-	def executeWithBeans = {
+	def exec= {
 		try {
-			def fixtureData = loadScriptWithBeans(params.fixture, params.beans)
+			def fixture = params.fixture ?: loadNamedFixtureAsScript(params.fixtureName)
+			println fixture
+			def beans = params.beans
+			params.remove('fixture')
+			params.remove('fixtureName')
+			params.remove('beans')
+			def fixtureData = loadScriptWithBeans(fixture, beans, params)
 			withFormat {
 				html { render view: "success-beans", model: [results: fixtureData]}
 				json { render fixtureData as JSON }
@@ -70,18 +77,25 @@ class FixtureController {
 		}
 	}
 
-	def loadScriptWithBeans(String script, beans) {
+	private String loadNamedFixtureAsScript(fixtureName) {
+		println "fixtureNAme: $fixtureName, $grailsApplication, $grailsApplication.mainContext"
+		def fixtureResource = new FixtureFilePatternResolver(grailsApplication, grailsApplication.mainContext).resolve(fixtureName)
+		println "fixtureResource: $fixtureResource"
+		def script = fixtureResource.length == 0 ? null : fixtureResource[0].inputStream.text
+		println "script: $script"
+		script
+	}
+
+	def loadScriptWithBeans(String script, beans, params) {
 		if(beans instanceof String) {
 			beans = [beans]
 		}
 		log.info "beans: $beans, script: $script"
-		def classloader = Thread.currentThread().contextClassLoader
-		def binding = new Binding()
-		def applicationContext = grailsApplication.mainContext
+		def binding = [params:params]
 		beans.each { beanName ->
-			binding[beanName] = applicationContext.getBean(beanName)
+			binding[beanName] = grailsApplication.mainContext.getBean(beanName)
 		}
-		def shell = new GroovyShell(classloader, binding)
+		def shell = createFixtureEvaluator(binding)
 		def result = shell.evaluate(script)
 		if(!(result instanceof Map)) {
 			result = [result: result]
@@ -135,12 +149,17 @@ class FixtureController {
 		buffer.toString()
 	}
 
-	private GroovyShell createFixtureEvaluator() {
+	private GroovyShell createFixtureEvaluator(extraBinding = null) {
 		def fixture = fixtureLoader.createFixture()
 		def classloader = Thread.currentThread().contextClassLoader
 		def binding = new Binding()
 		binding.fixture = fixture.&load
 		binding.build = fixture.&build
+		if(extraBinding) {
+			extraBinding.each { key, value ->
+				binding[key] = value
+			}
+		}
 		def shell = new GroovyShell(classloader, binding)
 		return shell
 	}

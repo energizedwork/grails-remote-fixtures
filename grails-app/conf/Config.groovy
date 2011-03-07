@@ -53,3 +53,5 @@ log4j = {
 
 	debug  "grails.app.controller.grails.plugin.remotefixtures"
 }
+grails.views.default.codec="none" // none, html, base64
+grails.views.gsp.encoding="UTF-8"

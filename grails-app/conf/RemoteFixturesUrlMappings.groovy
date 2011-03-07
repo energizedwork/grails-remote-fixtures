@@ -5,9 +5,9 @@ class RemoteFixturesUrlMappings {
 			action = "load"
 		}
 
-		"/fixture/executeWithBeans" {
+		"/fixture/exec" {
 			controller = "fixture"
-			action = "executeWithBeans"
+			action = "exec"
 		}
 
 		"/fixture/$fixture" {

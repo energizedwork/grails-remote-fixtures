@@ -1,0 +1,1 @@
+[transactionManager: transactionManager.getClass().simpleName]
