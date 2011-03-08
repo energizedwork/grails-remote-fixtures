@@ -5,6 +5,9 @@ grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
 
+grails.plugin.release.url='http://plugins.energizedwork.com'
+grails.plugin.release.directory='/var/www/plugins.energizedwork.com/htdocs'
+
 IvyRepResolver ewResolver = new IvyRepResolver()
 IvySettings settings = new IvySettings()
 settings.defaultLatestStrategy = settings.getLatestStrategy('latest-time')
