@@ -8,7 +8,8 @@ class RemoteFixturesGrailsPlugin {
             "grails-app/views/error.gsp",
             "grails-app/i18n/*",
 			"grails-app/domain/**/*",
-			"fixtures"
+			"fixtures",
+            "scripts/ReleaseLocal.groovy"
     ]
 
     def author = "Rob Fletcher"

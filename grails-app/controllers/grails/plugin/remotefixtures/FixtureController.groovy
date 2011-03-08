@@ -30,7 +30,7 @@ class FixtureController {
 		try {
 			def fixtureData = loadNamedFixture(params.fixture)
 			withFormat {
-				html { render view: "success", model: [fixture: fixtureData] }
+				html { render view: "success", plugin: 'remote-fixtures', model: [fixture: fixtureData] }
 				json { render fixtureData as JSON }
 				xml { render fixtureData as XML }
 			}
@@ -47,7 +47,7 @@ class FixtureController {
 		try {
 			def fixtureData = loadFixtureScript(params.fixture)
 			withFormat {
-				html { render view: "success", model: [fixture: fixtureData] }
+				html { render view: "success", plugin: 'remote-fixtures', model: [fixture: fixtureData] }
 				json { render fixtureData as JSON }
 				xml { render fixtureData as XML }
 			}
@@ -57,7 +57,7 @@ class FixtureController {
 		}
 	}
 
-	def exec= {
+	def exec = {
 		try {
 			def fixture = params.fixture ?: loadNamedFixtureAsScript(params.fixtureName)
 			println fixture
@@ -67,7 +67,7 @@ class FixtureController {
 			params.remove('beans')
 			def fixtureData = loadScriptWithBeans(fixture, beans, params)
 			withFormat {
-				html { render view: "success-beans", model: [results: fixtureData]}
+				html { render view: "success-beans", plugin: 'remote-fixtures', model: [results: fixtureData]}
 				json { render fixtureData as JSON }
 				xml { render fixtureData as XML }
 			}
@@ -78,7 +78,7 @@ class FixtureController {
 	}
 
 	private String loadNamedFixtureAsScript(fixtureName) {
-		println "fixtureNAme: $fixtureName, $grailsApplication, $grailsApplication.mainContext"
+		println "fixtureName: $fixtureName, $grailsApplication, $grailsApplication.mainContext"
 		def fixtureResource = new FixtureFilePatternResolver(grailsApplication, grailsApplication.mainContext).resolve(fixtureName)
 		println "fixtureResource: $fixtureResource"
 		def script = fixtureResource.length == 0 ? null : fixtureResource[0].inputStream.text
