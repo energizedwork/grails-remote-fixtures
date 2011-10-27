@@ -60,7 +60,7 @@ class FixtureController {
 	def exec = {
 		try {
 			def fixture = params.fixture ?: loadNamedFixtureAsScript(params.fixtureName)
-			println fixture
+			log.debug fixture
 			def beans = params.beans
 			params.remove('fixture')
 			params.remove('fixtureName')
@@ -78,11 +78,11 @@ class FixtureController {
 	}
 
 	private String loadNamedFixtureAsScript(fixtureName) {
-		println "fixtureName: $fixtureName, $grailsApplication, $grailsApplication.mainContext"
+		log.debug  "fixtureName: $fixtureName, $grailsApplication, $grailsApplication.mainContext"
 		def fixtureResource = new FixtureFilePatternResolver(grailsApplication, grailsApplication.mainContext).resolve(fixtureName)
-		println "fixtureResource: $fixtureResource"
+		log.debug  "fixtureResource: $fixtureResource"
 		def script = fixtureResource.length == 0 ? null : fixtureResource[0].inputStream.text
-		println "script: $script"
+		log.debug  "script: $script"
 		script
 	}
 
