@@ -1,9 +1,9 @@
 class RemoteFixturesGrailsPlugin {
 
     def groupId = "com.energizedwork"	
-    def version = "1.0-beans-4-SNAPSHOT"
+    def version = "1.0-beans-5-SNAPSHOT"
     def grailsVersion = "1.3.0 > *"
-    def dependsOn = [fixtures: "1.0.1"]
+    def dependsOn = [fixtures: "1.0.1 > *"]
     def pluginExcludes = [
             "grails-app/views/error.gsp",
             "grails-app/i18n/*",
